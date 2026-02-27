@@ -7,69 +7,97 @@
 
 </head>
 <body>
-<!-- CONTENT FROM THE SCRIPTS -->
+<!-- CONTAINER FOR THE JSX -->
   <div class="js-container">
 
   </div>
-  
 
 <!-- CODE TO SET UP REACT -->
     <!-- IMPORT REACT -->
-  <script 
-    src="https://unpkg.com/supersimpledev/react.js">
-  </script>
+    <script 
+      src="https://unpkg.com/supersimpledev/react.js">
+    </script>
 
   <!-- IMPORT REACTDOM -->
-  <script 
-    src="https://unpkg.com/supersimpledev/react-dom.js">
-  </script>
+    <script 
+      src="https://unpkg.com/supersimpledev/react-dom.js">
+    </script>
 
-  <!-- IMPORT BABEL -->
-   <script 
-    src="https://unpkg.com/supersimpledev/babel.js">
-   </script>
+     <!-- IMPORT CHATBOT EXTERNAL LIBRARY -->
+    <script
+      src="https://unpkg.com/supersimpledev/chatbot.js">
+    </script>
 
-   <!-- IMPORT DAY.JS -->
-  <script 
-    src="https://unpkg.com/supersimpledev/dayjs.js">
-  </script>
+  <!-- IMPORT BABEL COMPILER -->
+    <script 
+      src="https://unpkg.com/supersimpledev/babel.js">
+    </script>
 
   <!-- MAIN SCRIPTS -->
-  <script 
-    type="text/babel"
-    >
+  <script type="text/babel">
 
-    function ChatInput(){
+
+    // FUN TO GET INPUT VALUES, AND SAVE INTO NEW ARRAY AND RETURN INPUT ELEMENT AND SEND BUTTON BEGINS HERE
+    function ChatInput({ chatMessages, setChatMessages }){
+      const [inputText, setInputText] = React.useState("");
+
+      function saveInputText(event){
+
+        setInputText(
+          event.target.value);
+        }
+
+      // FUN TO ADD AND SEND NEW CHAT MESSAGE BEGINS HERE
+      function sendMessage() {
+        const newChatMessages = [
+          ...chatMessages,
+          {
+            message: inputText,
+            sender: "user",
+            id: crypto.randomUUID() 
+          }
+        ]
+
+        setChatMessages(newChatMessages);
+
+        // RUN CHATBOT RESPONSE METHOD
+        const response = Chatbot.getResponse(inputText);
+        setChatMessages([
+          ...newChatMessages,
+          {
+            message: response,
+            sender: "robot",
+            id: crypto.randomUUID() 
+          }
+        ]);
+
+        setInputText("");
+      }
+      // FUN TO ADD AND SEND NEW CHAT MESSAGE ENDS HERE
+
       return (
         <>
           <input 
             placeholder="Send a message to Chatbot" size="30"
+            onChange={saveInputText}
+            value={inputText}
            />
-          <button>
+          <button onClick={sendMessage}>
             Send
           </button>
         </>
         
       );
     }
+    // FUN TO GET INPUT VALUES, AND SAVE INTO NEW ARRAY AND RETURN INPUT ELEMENT AND SEND BUTTON ENDS HERE 
 
+
+
+    // COMPONENT TO DISPLAY EACH CHAT MESSAGE IN THE DOM 
     function ChatMessage({ message, sender }){
-      // const message = props.message;
-      // const sender = props.sender;
-
-      // THE SHORTCUT FOR THE LINES ABOVE //
-      // const { message, sender } = props;
-
-      // if(sender === "robot"){
-      //   return (
-      //     <div>
-      //     <img src="images/robot.png" width="50px" />
-      //     {message} 
-      //   </div>
-      //   )
-      // }
 
       return (
+        <>
         <div>
           {sender === "robot" && (
             <img src="images/robot.png" width="50px"/>
@@ -77,44 +105,93 @@
 
           {message}
 
-         {sender === "user" && (
+          {sender === "user" && (
           <img src="images/user.png" width="50px" />
          )}
         </div>
+        </>
       );
     }
-
-      function App(){
-        return(
-          <>
-            <ChatInput />
-
-            <ChatMessage
-            message="hello chatbot" 
-            sender="user"
-            />
-
-            <ChatMessage
-            message="hello, how can I help you today?" sender="robot" 
-            />
-
-            <ChatMessage 
-              message="can you get me today's date?" sender="user"
-            />
-
-            <ChatMessage
-            message="Today is september 7th" sender="robot" 
-            />
-          </>
-        )
-      }
-       
-        // CODE TO GET DOM FROM HTML BODY
-
-        const container = document.querySelector(".js-container");
-        ReactDOM.createRoot(container).render(<App />);
+    // COMPONENT TO DISPLAY EACH CHAT MESSAGE IN THE DOM 
 
 
+
+    //FUN TO MAP LOOP THROUGH THE ARRAY SAVED IN STATE, AND DISPLAY A COPY OF THE ARRAY ON THE PAGE. 
+    function ChatMessages({ chatMessages }){
+
+      // RETURN THE HTML OF THE PAGE
+      return(
+        <>
+          {chatMessages.map((chatMessage) => {
+            return (
+              <ChatMessage 
+                message= {chatMessage.message}
+                sender= {chatMessage.sender}
+                key={chatMessage.id}
+              />
+            )
+          })}
+        </>
+      )
+      // RETURN THE HTML OF THE PAGE
+    }
+    //FUN TO MAP LOOP THROUGH THE ARRAY SAVED IN STATE, AND DISPLAY A COPY OF THE ARRAY ON THE PAGE. 
+
+
+
+    // FUN TO DISPLAY THE APPLICATION TREE ONT THE PAGE
+    function App(){
+
+      // FIRST  SAVE THE ARRAY INTO REACT STATE
+      const [chatMessages, setChatMessages] = React.useState(
+        [
+          {
+            message: "hello chatbot",
+            sender: "user",
+            id: crypto.randomUUID()
+          },
+          {
+            message: "hello, how can I help you today?",
+            sender: "robot",
+            id: crypto.randomUUID()
+          },
+          {
+            message: "can you get me today's date?",
+            sender: "user",
+            id: crypto.randomUUID()
+          },
+          {
+            message: "Today is september 7th",
+            sender: "robot",
+            id: crypto.randomUUID()
+          }
+        ]
+      );
+      // FIRST  SAVE THE ARRAY INTO REACT STATE
+
+
+      return(
+        <>
+          <ChatInput 
+          chatMessages={chatMessages}
+          setChatMessages={setChatMessages}
+          />
+
+
+          <ChatMessages 
+          chatMessages={chatMessages}
+          />
+
+        </>  
+      );
+    }
+    // FUN TO DISPLAY THE APPLICATION TREE ON THE PAGE
+
+
+
+    // CODE TO GET DOM FROM HTML BODY AND RENDER APP COMPONENT
+    const container = document.querySelector(".js-container");
+    ReactDOM.createRoot(container).render(<App />);
   </script>
 </body>
 </html>
