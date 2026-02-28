@@ -211,9 +211,21 @@
     //FUN TO MAP LOOP THROUGH THE ARRAY SAVED IN STATE, AND DISPLAY A COPY OF THE ARRAY ON THE PAGE. 
     function ChatMessages({ chatMessages }){
 
+     const chatMessagesRef = React.useRef(null);
+
+      React.useEffect(() => {
+        const containerElem = chatMessagesRef.current;
+        if (containerElem) {
+          containerElem.scrollTop = containerElem.scrollHeight;
+        }
+      }, [chatMessages]);
+
       // RETURN THE HTML OF THE PAGE
       return(
-        <div className="chat-messages-container">
+        <div 
+        className="chat-messages-container"
+        ref={chatMessagesRef}
+        >
           {chatMessages.map((chatMessage) => {
             return (
               <ChatMessage 
